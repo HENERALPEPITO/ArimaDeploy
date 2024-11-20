@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dengue Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        .prediction {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dengue Prediction</h1>
+    <p>Enter the values for the last 4 weeks to predict the number of cases:</p>
+
+    <form id="predictionForm">
+        <label for="Rainfall">Rainfall (last 4 weeks, comma-separated):</label><br>
+        <input type="text" id="Rainfall" name="Rainfall" value="0.0229, 0.0257, 0.0371, 0.0429"><br>
+
+        <label for="Temperature">Temperature (last 4 weeks, comma-separated):</label><br>
+        <input type="text" id="Temperature" name="Temperature" value="26.7944444, 27.394444, 27.188889, 26.188889"><br>
+
+        <label for="Humidity">Humidity (last 4 weeks, comma-separated):</label><br>
+        <input type="text" id="Humidity" name="Humidity" value="86.14285714, 81.81428571, 82.15714286, 83.72857143"><br>
+
+        <button type="button" onclick="predictCases()">Predict Cases</button>
+    </form>
+
+    <div class="prediction">
+        <p id="predictionResult"></p>
+    </div>
+
+    <script>
+        function predictCases() {
+            // Get the values from the input fields
+            const rainfallInput = document.getElementById('Rainfall').value;
+            const temperatureInput = document.getElementById('Temperature').value;
+            const humidityInput = document.getElementById('Humidity').value;
+    
+            // Convert the comma-separated input into arrays of numbers
+            const rainfall = rainfallInput.split(',').map(val => parseFloat(val.trim()));
+            const temperature = temperatureInput.split(',').map(val => parseFloat(val.trim()));
+            const humidity = humidityInput.split(',').map(val => parseFloat(val.trim()));
+    
+            // Log the data being sent for debugging
+            console.log("Data being sent to API:", { Rainfall: rainfall, Temperature: temperature, Humidity: humidity });
+    
+            // Prepare the data to send to the FastAPI backend
+            const data = {
+                Rainfall: rainfall,
+                Temperature: temperature,
+                Humidity: humidity
+            };
+    
+            // Send the data using Fetch API to your FastAPI server
+            fetch('http://127.0.0.1:8000/predict/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display the predicted cases in the result div
+                console.log("Response from API:", data);
+                document.getElementById('predictionResult').innerText = `Predicted Cases: ${data.predicted_cases}`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('predictionResult').innerText = "Error making prediction.";
+            });
+        }
+    </script>    
+</body>
+</html>
