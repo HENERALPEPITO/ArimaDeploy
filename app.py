@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import pandas as pd
+import numpy as np
 import joblib
 import logging
 from fastapi import FastAPI, HTTPException, Request
